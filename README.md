@@ -1044,8 +1044,8 @@ reconv <-
 
 #standardize and decompose!
 reconv_DG <- dgnpop(df=reconv,
-                          pop=year,
-                          prevalence, pop_str,
+                          pop="year",
+                          "prevalence", "pop_str",
                           id_vars=c("Age","Sex"),
                           ratefunction="prevalence*pop_str")
                           # the default ratefunction calculates rate as the product of all specified factors
@@ -1262,7 +1262,7 @@ reconv <-
   ) 
 
 reconv_DG <- dgnpop(df=reconv,
-                          pop=year,prevalence, pop_str,frequency,
+                          pop="year","prevalence", "pop_str", "frequency",
                           id_vars=c("Age","Sex"),ratefunction="prevalence*pop_str*frequency")
 
 crude_rates <-
