@@ -1,0 +1,335 @@
+---
+title: "Standardization and decomposition with small differences in crude rates"
+format:
+  html:
+    embed-resources: true
+---
+
+Results from standardization and decomposition express change in crude rates as a percentage. When the absolute difference in crude rates is very small these percentages can become extremely large - and in the case where the crude rates are identical they are not defined. One way to assess this is via a statistical significance test for proportions - if the test is statistically significant then the results of the standardization and decomposition are likely to be robust to small variations in the input data. Bootstrapping provides another way to assess this.
+
+```{r}
+
+library(DasGuptR)
+library(DescTools)
+library(tidyverse)
+library(rsample)
+
+data("reconv")
+
+set.seed(as.numeric(as.Date("2026/05/21")))
+
+```
+
+First we conduct a standardization and decomposition for the first and last years in the reconvictions data.
+
+```{r}
+# original analysis -------------------------------------------------------
+
+res_2004_2016 <- 
+reconv |> 
+  filter(year == "2004" | year == "2016") |> 
+  dgnpop(pop="year", 
+         factors=c("prev_rate"),id_vars=c("Sex","Age"),
+         crossclassified="offenders") |> 
+  dg_table() |> 
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+  rownames_to_column()
+
+res_2004_2016
+
+```
+
+This works as anticipated. However, the crude difference in reconviction rates in 2004 and 2016 is quite large: `r res_2004_2016$diff[[4]]`. Plotting the crude rates alongside their confidence intervals using `prop.test()` gives a sense of how different the crude rates in pairs of comparison years are whilst adjusting for the size of the reconviction cohorts.
+
+
+```{r}
+crude_rates <- 
+  reconv |> 
+  group_by(year) |> 
+  summarise(crude_rate = weighted.mean(prev_rate, offenders),
+            offenders = sum(offenders),
+            reconvicted = sum(reconvicted))
+
+ref <- 
+crude_rates |> 
+  filter(year == "2016")
+
+diff_cis <- 
+crude_rates |> 
+ filter_out(year == "2016") |> 
+  mutate(
+    res = map2(
+      reconvicted, offenders,
+      ~ prop.test(
+        c(.x, ref$reconvicted),
+        c(.y, ref$offenders)
+      ) |> broom::tidy()
+    )
+  )
+
+
+diff_cis |> 
+  unnest(res) |>  
+  mutate(diff = estimate1 - estimate2) |> 
+  ggplot(aes(x = year, y = diff)) +
+  geom_hline(yintercept = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high))
+
+```
+Similarly, we can see that the p-value for the comparison between 2015 and 2016 is not statistically significant
+
+```{r}
+diff_cis |> 
+  unnest(res) |>  
+  filter(p.value >= 0.05) |> 
+  select(year, estimate1, estimate2, p.value)
+
+```
+
+If we decompose the difference in crude rates between the 2015 and 2016 reconviction cohorts we do get results, showing that 114% of the difference between these two years is due to changes in age structure.
+
+```{r}
+
+reconv |> 
+  filter(year == "2015" | year == "2016") |> 
+  dgnpop(pop="year", 
+         factors=c("prev_rate"),id_vars=c("Sex","Age"),
+         crossclassified="offenders") |> 
+  dg_table() |> 
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+  rownames_to_column()
+
+```
+
+If we bootstrap the underlying reconvictions data we find that the results from the 2004 to 2016 comparison are robust sensitive to perturbations of the input data, and the observe results align with the median result of the bootstrap draws.
+
+```{r}
+#| eval: false
+# now with bootstrapping --------------------------------------------------
+
+
+uncount_split <- function(splits){
+  
+  rsample::analysis(splits) |> 
+    count(year, Age, Sex, reconvicted) |> 
+    pivot_wider(names_from = "reconvicted",
+                values_from = "n") |> 
+    mutate(offenders = n_not_reconvicted + reconvicted,
+           prev_rate = reconvicted / offenders)
+  
+  
+}
+
+
+calc_dg <- function(d){
+  
+  d |> 
+    dgnpop(pop="year", 
+           factors=c("prev_rate"),id_vars=c("Sex","Age"),
+           crossclassified="offenders",
+           agg = TRUE) |> 
+    dg_table() |> 
+    rownames_to_column()
+  
+}
+
+
+n_draws <- 500
+
+
+
+# just the first and last year
+dat_2004_2016 <- 
+  reconv |> 
+  filter(year == "2004" | year == "2016")
+
+dat_2004_2016_long <- 
+  dat_2004_2016 |> 
+  mutate(n_not_reconvicted = offenders - reconvicted) |> 
+  select(year, Age, Sex, n_not_reconvicted, reconvicted) |> 
+  pivot_longer(n_not_reconvicted:reconvicted, names_to = "reconvicted", values_to = "n") |> 
+  mutate(n = as.integer(n)) |>
+  uncount(n)
+
+
+
+draws_2004_2016 <- 
+  dat_2004_2016_long |> 
+  group_by(year) |> 
+  rsample::bootstraps(times = n_draws) |> 
+  mutate(dat = map(splits, uncount_split),
+         results = map(dat, calc_dg),
+         draw = 1:n_draws) |> 
+  select(draw, results)
+
+
+# saveRDS(draws_2004_2016,
+#                           here::here("vignettes", "qmd", # "bsamps_2004_2016.rds"))
+
+```
+
+```{r}
+#| echo: false
+
+draws_2004_2016 <- readRDS("bsamps_2004_2016.rds")
+
+```
+
+
+```{r}
+draws_2004_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2004`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016") |> 
+  ggplot(aes(x = decomp, y = rowname)) +
+  ggdist::stat_halfeye() +
+  geom_point(
+    data = res_2004_2016,
+    aes(x = decomp, y = rowname),
+    size = 4,
+    colour = "red"
+  ) +
+  ggtitle(
+    label = "Red point is real data"
+  ) +
+  facet_wrap(~ rowname, scales = "free_x")
+
+draws_2004_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2004`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016") |> 
+  group_by(rowname, year) |> 
+  summarise(confs = list(quantile(decomp, c(0.025, 0.5, 0.975))),
+            cis = list(c("lower_ci", "median", "upper_ci"))) |> 
+  unnest(c(confs, cis)) |> 
+  pivot_wider(names_from = cis, values_from = confs)
+
+res_2004_2016
+
+```
+
+However for the 2015 to 2016 comparison the observed results do not align with the bootstrap draws and the bootstrap distribution of estimates is very wide.
+
+```{r}
+
+res_2015_2016 <- 
+  reconv |> 
+  filter(year == "2015" | year == "2016") |> 
+  dgnpop(pop="year", 
+         factors=c("prev_rate"),id_vars=c("Sex","Age"),
+         crossclassified="offenders") |> 
+  dg_table() |> 
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+  rownames_to_column()
+
+
+dat_2015_2016 <- 
+  reconv |> 
+  filter(year == "2015" | year == "2016")
+
+```
+
+```{r}
+#| eval: false
+
+dat_2015_2016_long <- 
+  dat_2015_2016 |> 
+  mutate(n_not_reconvicted = offenders - reconvicted) |> 
+  select(year, Age, Sex, n_not_reconvicted, reconvicted) |> 
+  pivot_longer(n_not_reconvicted:reconvicted, names_to = "reconvicted", values_to = "n") |> 
+  mutate(n = as.integer(n)) |>
+  uncount(n)
+
+draws_2015_2016 <- 
+  dat_2015_2016_long |> 
+  group_by(year) |> 
+  rsample::bootstraps(times = n_draws) |> 
+  mutate(dat = map(splits, uncount_split),
+         results = map(dat, calc_dg),
+         draw = 1:n_draws) |> 
+  select(draw, results)
+
+ saveRDS(draws_2015_2016,
+     here::here("vignettes", "qmd", "bsamps_2015_2016.rds"))
+
+```
+
+```{r}
+#| echo: false
+draws_2015_2016 <- readRDS(here::here("vignettes", "qmd", "bsamps_2015_2016.rds"))
+```
+
+```{r}
+draws_2015_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2015`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016",
+         rowname != "crude") |> 
+  ggplot(aes(x = decomp, y = rowname)) +
+  ggdist::stat_halfeye() +
+  geom_point(
+    data = res_2015_2016 |> 
+      filter(rowname != "crude")
+      ,
+    aes(x = decomp, y = rowname),
+    size = 4,
+    colour = "red"
+  ) +
+  ggtitle(
+    label = "Red point is real data"
+  ) +
+  facet_wrap(~ rowname, scales = "free_x") +
+  scale_x_continuous(limits = c(-250, 250))
+
+
+
+draws_2015_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2015`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016") |> 
+  group_by(rowname, year) |> 
+  summarise(confs = list(quantile(decomp, c(0.025, 0.5, 0.975))),
+            cis = list(c("lower_ci", "median", "upper_ci"))) |> 
+  unnest(c(confs, cis)) |> 
+  pivot_wider(names_from = cis, values_from = confs)
+
+
+res_2015_2016
+
+
+```
+
+In extremis, if the data from two years are identical the results are `NaN`.
+
+```{r}
+
+dat_2016 <- 
+  reconv |> 
+  filter(year == "2016")
+
+bad_dat_2015 <- 
+  dat_2016 |> 
+  mutate(year = as.integer(2015))
+
+bind_rows(
+  dat_2016,
+  bad_dat_2015
+) |> 
+  dgnpop(pop="year", 
+         factors=c("prev_rate"),id_vars=c("Sex","Age"),
+         crossclassified="offenders") |> 
+  dg_table() |> 
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+  rownames_to_column()
+
+```
+
