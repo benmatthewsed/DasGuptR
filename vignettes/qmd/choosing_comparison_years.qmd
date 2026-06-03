@@ -156,10 +156,12 @@ draws_2004_2016 |>
   pivot_longer(`2004`:`2016`,
                names_to = "year",
                values_to = "rate") |> 
-  filter(year == "2016") |> 
+  filter(year == "2016",
+         rowname != "crude") |> 
   group_by(rowname, year) |> 
   summarise(confs = list(quantile(decomp, c(0.025, 0.5, 0.975))),
-            cis = list(c("lower_ci", "median", "upper_ci"))) |> 
+            cis = list(c("lower_ci", "median", "upper_ci")),
+            .groups = "drop") |> 
   unnest(c(confs, cis)) |> 
   pivot_wider(names_from = cis, values_from = confs)
 
@@ -244,33 +246,19 @@ res_2015_2016
 
 ```
 
-However, these results may not be reliable.
+However, these results may not be reliable...
 
 ## Uncertainty in comparison between 2015 and 2016
 
 If we repeat the process for the 2015 to 2016 comparison the observed results do not align with the bootstrap draws and the bootstrap distribution of estimates is very wide.
 
 ```{r}
-
-res_2015_2016 <- 
-  reconv |> 
-  filter(year == "2015" | year == "2016") |> 
-  dgnpop(pop="year", 
-         factors=c("prev_rate"),id_vars=c("Sex","Age"),
-         crossclassified="offenders") |> 
-  dg_table() |> 
-  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
-  rownames_to_column()
+#| eval: false
 
 
 dat_2015_2016 <- 
   reconv |> 
   filter(year == "2015" | year == "2016")
-
-```
-
-```{r}
-#| eval: false
 
 dat_2015_2016_long <- 
   dat_2015_2016 |> 
@@ -289,8 +277,8 @@ draws_2015_2016 <-
          draw = 1:n_draws) |> 
   select(draw, results)
 
- saveRDS(draws_2015_2016,
-     here::here("vignettes", "qmd", "bsamps_2015_2016.rds"))
+# saveRDS(draws_2015_2016,
+#     here::here("vignettes", "qmd", "bsamps_2015_2016.rds"))
 
 ```
 
