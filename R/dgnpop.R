@@ -32,7 +32,7 @@
 #' - `pop`: population p for which factor a is taken from
 #' - `std.set`: set of N populations (minus p) across which the standardisation has been performed
 #' - `factor`: name of factor a that is being considered, such that for the set of factors K, the \{K-a\}-standardised rate is returned
-#'
+#' @importFrom utils combn
 #' @export
 #' @examples
 #' ## 2 populations, R=ab
@@ -283,6 +283,11 @@ dgnpop <- function(x, pop, factors, id_vars = NULL, crossclassified = NULL,
   ##########
   # CHECK
   ##########
+  # TODO
+  # check names of pop, id_vars, crossclassified, in x
+  # check missingness
+
+
   # stops if crossclassified
   output_agg <- TRUE
   if (!is.null(crossclassified)) {
