@@ -29,7 +29,8 @@ split_popstr <- function(x, id_vars, nvar) {
 
       # this is the last bit, N_abc,,k / N_....
       # just for the given row
-      pp <- .findn_v(ix)[tr] / sum(tmpdf[[nvar]])
+      pp <- c()
+        if(np > 2) { pp <- .findn_v(ix)[tr] / sum(tmpdf[[nvar]]) }
 
       # specifically when more than 2 factors, we have middle bits!
       # so we have essentially got fractions p2 up to p-kminus1, for each of 2 up to K-1 of the
