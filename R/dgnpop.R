@@ -266,6 +266,22 @@ dgnpop <- function(x, pop, factors, id_vars = NULL, crossclassified = NULL,
                    ratefunction = NULL, agg = TRUE, baseline = NULL, quietly = TRUE, diffs = FALSE) {
   tmpdf <- as.data.frame(x)
 
+  # population names mustn't be contained in factor names
+  # and factor names mustn't be contained in population names.
+  # this is probs the messiest bit
+  while (sapply(tmpdf[[pop]], \(x) grepl(x, c(factors, id_vars))) |> any() |
+         sapply(factors, \(x) grepl(x, tmpdf[[pop]])) |> any()) {
+    tmpdf[[pop]] <- paste0("pop.", tmpdf[[pop]])
+    names(tmpdf)[names(tmpdf)%in%factors] <-
+      paste0("factor.", names(tmpdf)[names(tmpdf)%in%factors])
+    factors <- paste0("factor.", factors)
+  }
+
+  tmpdf[[pop]] <- factor(tmpdf[[pop]])
+  allpops <- unique(tmpdf[[pop]])
+  nfact <- length(factors)
+
+
   ##########
   # Rate functions
   ##########
@@ -310,19 +326,6 @@ dgnpop <- function(x, pop, factors, id_vars = NULL, crossclassified = NULL,
     output_agg <- FALSE
   }
 
-  # population names mustn't be contained in factor names
-  while ( length(intersect(tmpdf[[pop]],factors))>0 |
-          length(intersect(tmpdf[[pop]],id_vars))>0 ){
-    tmpdf[[pop]] <- paste0("pop.", tmpdf[[pop]])
-  }
-
-
-
-
-  tmpdf[[pop]] <- factor(tmpdf[[pop]])
-
-  allpops <- unique(tmpdf[[pop]])
-  nfact <- length(factors)
 
   .makepopdf <- function(x) {
     popdf <- tmpdf[tmpdf[[pop]] %in% x, ]
@@ -344,7 +347,6 @@ dgnpop <- function(x, pop, factors, id_vars = NULL, crossclassified = NULL,
         factor = "crude"
       )
   }
-
 
   ##########
   # THE DAS GUPTA METHOD

@@ -14,7 +14,7 @@ dg354 <- function(df2, i, pop, factors, id_vars, ratefunction, quietly = TRUE) {
   # how many factors?
   nfact <- length(factors)
   # this is the one we're interested in right now
-  facti <- factors[i]
+  # facti <- factors[i]
   facti <- i
   pops <- unique(names(df2))
   # message
