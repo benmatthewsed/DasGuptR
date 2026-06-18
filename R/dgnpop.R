@@ -311,10 +311,13 @@ dgnpop <- function(x, pop, factors, id_vars = NULL, crossclassified = NULL,
   }
 
   # population names mustn't be contained in factor names
-  while (sapply(tmpdf[[pop]], \(x) grepl(x, c(factors, id_vars))) |> any() |
-    sapply(factors, \(x) grepl(x, tmpdf[[pop]])) |> any()) {
+  while ( length(intersect(tmpdf[[pop]],factors))>0 |
+          length(intersect(tmpdf[[pop]],id_vars))>0 ){
     tmpdf[[pop]] <- paste0("pop.", tmpdf[[pop]])
   }
+
+
+
 
   tmpdf[[pop]] <- factor(tmpdf[[pop]])
 
