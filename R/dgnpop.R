@@ -448,8 +448,8 @@ dgnpop <- function(x, pop, factors, id_vars = NULL, crossclassified = NULL,
         ]
 
         # NOT NEEDED
-        # difference_effects = dgNp_rates[dgNp_rates$std.set == baseline,
-        #            c("diff","pop","diff.calc","factor")]
+        difference_effects = dgNp_rates[dgNp_rates$std.set == baseline,
+                   c("diff","pop","diff.calc","factor")]
       } else {
         # std_rates
         if (!quietly) {
