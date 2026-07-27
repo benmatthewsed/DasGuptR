@@ -21,8 +21,10 @@ dg_check <- function(x,
 
   ## fully cross-classified
   if(!is.null(crossclassified)){
-    if(!all(unlist(table(x[,c(pop,id_vars)])) == 1)){
-      stop("For cross-classified data structures, all populations must have an entry for every combination of the levels of variables indicating population structure")
+    if(!Reduce(identical,
+              lapply(split(x, x[[pop]]), \(p) table(p[id_vars])))
+       ){
+      stop("For cross-classified data structures, all populations must have same combinations of levels of variables indicating the population structure")
     }
 
     marg_combs <- combn(id_vars, length(id_vars)-1)
