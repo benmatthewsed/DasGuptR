@@ -2,6 +2,8 @@
 #' @param dgo output from `dgnpop()`
 #' @param legend.position legend position, passed to `graphics::legend` - choose from "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "topright", "right" and "center", or provide xy.coords
 #' @return A plot of each of the set of K-a standardised rates across populations
+#' @importFrom grDevices rainbow
+#' @importFrom graphics axis legend lines points
 #' @export
 dg_plot <- function(dgo, legend.position = "topright") {
   pops <- as.numeric(factor(dgo[["pop"]]))

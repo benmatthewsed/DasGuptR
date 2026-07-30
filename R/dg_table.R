@@ -3,6 +3,7 @@
 #' @param pop1 optional name of first population for decomposition (character/numeric)
 #' @param pop2 optional name of second population for decomposition (character/numeric)
 #' @return data.frame object with rows for each of the K-a standardised rates and the crude rates, and columns for each of the N populations. When only two populations are included, or if two populations are explicitly specified, standardised rate differences are provided, and are also expressed as a percentage of the crude rate differences (typically referred to as 'decomposition effects').
+#' @importFrom stats addmargins xtabs
 #' @export
 dg_table <- function(dgo, pop1 = NULL, pop2 = NULL) {
   # n pops
