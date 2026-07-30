@@ -1,7 +1,8 @@
 Package: DasGuptR
 Type: Package
 Title: Das Gupta Standardisation and Decomposition
-Version: 2.1.0
+Version: 2.2.0
+Date: 
 Authors@R: c(person(given = "Josiah",
                       family = "King",
                       role = c("aut", "cre"),
@@ -17,7 +18,10 @@ BugReports: https://github.com/josiahpjking/DasGuptR/issues
 Depends: R (>= 4.1.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
-Suggests: R.rsp
+Suggests: 
+    R.rsp,
+    testthat (>= 3.0.0)
 VignetteBuilder: R.rsp
+Config/testthat/edition: 3

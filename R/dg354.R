@@ -7,12 +7,14 @@
 #' @param ratefunction user defined character string in R syntax that when evaluated specifies the function defining the rate as a function of factors. if NULL then will assume rate is the product of all factors.
 #' @param quietly logical indicating whether interim messages should be outputted indicating progress
 #' @return data.frame object including K-a standardised rates for each population for given factor a, along with differences between standardised rates
+#' @importFrom stats aggregate setNames
+#' @importFrom utils combn
 #' @export
 dg354 <- function(df2, i, pop, factors, id_vars, ratefunction, quietly = TRUE) {
   # how many factors?
   nfact <- length(factors)
   # this is the one we're interested in right now
-  facti <- factors[i]
+  # facti <- factors[i]
   facti <- i
   pops <- unique(names(df2))
   # message
@@ -129,7 +131,7 @@ dg354 <- function(df2, i, pop, factors, id_vars, ratefunction, quietly = TRUE) {
     ), e = length(popAi)),
     factor = facti
   )
-  if (!is.null(id_vars) & length(popAi) > 2) {
+  if (!is.null(id_vars) & length(popAi) > 1) {
     res <- as.data.frame(cbind(res, pop_facts[, id_vars, drop = FALSE]))
   }
   return(res)
