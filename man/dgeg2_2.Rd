@@ -14,7 +14,7 @@ A data frame with 2 rows and 4 variables:
 }
 }
 \source{
-"Standardization and decomposition of rates: A user’s manual", Das Gupta (1993)
+\href{https://www.census.gov/library/publications/1993/demo/p23-186.html}{Das Gupta, Prithwis (1993). Standardization and Decomposition of Rates: A User's Manual. U.S. Bureau of the Census, Current Population Reports, Series P23-186. U.S. Government Printing Office, Washington, DC.}
 }
 \usage{
 dgeg2_2
@@ -22,7 +22,7 @@ dgeg2_2
 \description{
 Crude Birth Rates as the Product of Three Factors: Austria and Chile, 1981
 
-\emph{To allow for direct comparison with Das Gupta's original publication we have preserved these datasets as they were originally presented, but recognise that some of the terminology and classifications no longer align with current practices}
+\emph{To allow for direct comparison with Das Gupta's original publication we have preserved these datasets as they were originally presented}
 }
 \examples{
 data(dgeg2_2)

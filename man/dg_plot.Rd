@@ -4,12 +4,24 @@
 \alias{dg_plot}
 \title{Creates a plot of Das Gupta standardised rates across the set of populations}
 \usage{
-dg_plot(dgo, legend.position = "topright")
+dg_plot(
+  dgo,
+  xlab = "population",
+  ylab = "rate",
+  legend.position = "topright",
+  ...
+)
 }
 \arguments{
-\item{dgo}{output from \code{dgnpop()}}
+\item{dgo}{output from \code{\link[=dgnpop]{dgnpop()}}}
 
-\item{legend.position}{legend position, passed to \code{graphics::legend} - choose from "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "topright", "right" and "center", or provide xy.coords}
+\item{xlab}{x axis label}
+
+\item{ylab}{y axis label}
+
+\item{legend.position}{legend position, passed to \code{\link[graphics:legend]{graphics::legend()}}, choose from "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "topright", "right" and "center", or provide xy.coords}
+
+\item{...}{other arguments passed to methods, such as \code{\link[graphics:par]{graphics::par()}}}
 }
 \value{
 A plot of each of the set of K-a standardised rates across populations

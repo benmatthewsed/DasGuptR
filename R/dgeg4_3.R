@@ -3,7 +3,7 @@
 #' @description
 #' Crude Birth Rate per 1,000 as a Function of Three Vector-Factors: Taiwan, 1960 and 1970
 #'
-#' *To allow for direct comparison with Das Gupta's original publication we have preserved these datasets as they were originally presented, but recognise that some of the terminology and classifications no longer align with current practices*
+#' *To allow for direct comparison with Das Gupta's original publication we have preserved these datasets as they were originally presented*
 #'
 #' @format A data frame with 14 rows and 5 variables:
 #' \describe{
@@ -14,7 +14,7 @@
 #'   \item{wp}{Total women in age group i as a proportion of the total population}
 #' }
 #'
-#' @source "Standardization and decomposition of rates: A user’s manual", Das Gupta (1993)
+#' @source [Das Gupta, Prithwis (1993). Standardization and Decomposition of Rates: A User's Manual. U.S. Bureau of the Census, Current Population Reports, Series P23-186. U.S. Government Printing Office, Washington, DC.](https://www.census.gov/library/publications/1993/demo/p23-186.html)
 #'
 #' @keywords datasets
 #'

@@ -16,15 +16,14 @@ dg_check <- function(x,
 
   ## missingness
   if(anyNA(x[,c(pop,factors,id_vars,crossclassified)])){
-    stop("Das Gupta's methods cannot handle missing data")
+    stop("Das Gupta's methods cannot handle missing data.")
   }
 
   ## fully cross-classified
   if(!is.null(crossclassified)){
-    if(!Reduce(identical,
-              lapply(split(x, x[[pop]]), \(p) table(p[id_vars])))
-       ){
-      stop("For cross-classified data structures, all populations must have same combinations of levels of variables indicating the population structure")
+    poptabs <- lapply(split(x, x[[pop]]), \(p) table(p[id_vars]))
+    if(length(unique(poptabs))!=1){
+      stop("For cross-classified data structures, all populations must have same combinations of levels of variables indicating the population structure.")
     }
 
     marg_combs <- combn(id_vars, length(id_vars)-1)
@@ -34,7 +33,7 @@ dg_check <- function(x,
         any(ave(x[[crossclassified]], ccgroups, FUN = sum) == 0)
       })
     )){
-      stop("All marginal totals calculated over combinations of j-1 variables specified in id_vars must be greater than zero for cross-classified structures.\nConsider collapsing groups with small cells, or adding a very small value to empty cells to avoid division by zero.")
+      stop("All marginal totals calculated over combinations of j-1 variables specified in id_vars must be greater than zero for cross-classified structures.")
     }
   }
 

@@ -7,7 +7,7 @@
 dg611(srates, all_p, y, factor)
 }
 \arguments{
-\item{srates}{a dataframe/tibble object of standardised rates from dg2pop}
+\item{srates}{a dataframe/tibble object of standardised rates from \code{\link[=dg2pop]{dg2pop()}}}
 
 \item{all_p}{character or numeric vector of all N populations}
 

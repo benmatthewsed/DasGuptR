@@ -7,7 +7,7 @@
 dg612(srates, all_p, ps, factor, std = TRUE)
 }
 \arguments{
-\item{srates}{a dataframe output from dg2p}
+\item{srates}{a dataframe output from \code{\link[=dg2pop]{dg2pop()}}}
 
 \item{all_p}{character or numeric vector of all N populations}
 

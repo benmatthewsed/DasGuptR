@@ -15,7 +15,7 @@ A data frame with 14 rows and 5 variables:
 }
 }
 \source{
-"Standardization and decomposition of rates: A user’s manual", Das Gupta (1993)
+\href{https://www.census.gov/library/publications/1993/demo/p23-186.html}{Das Gupta, Prithwis (1993). Standardization and Decomposition of Rates: A User's Manual. U.S. Bureau of the Census, Current Population Reports, Series P23-186. U.S. Government Printing Office, Washington, DC.}
 }
 \usage{
 dgeg4_3
@@ -23,7 +23,7 @@ dgeg4_3
 \description{
 Crude Birth Rate per 1,000 as a Function of Three Vector-Factors: Taiwan, 1960 and 1970
 
-\emph{To allow for direct comparison with Das Gupta's original publication we have preserved these datasets as they were originally presented, but recognise that some of the terminology and classifications no longer align with current practices}
+\emph{To allow for direct comparison with Das Gupta's original publication we have preserved these datasets as they were originally presented}
 }
 \examples{
 data(dgeg4_3)

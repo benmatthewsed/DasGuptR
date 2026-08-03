@@ -37,9 +37,9 @@
 # DasGuptR
 
 The goal of the DasGuptR package is to provide an implementation of
-Prithwis Das Gupta’s specification of *standardization* and
+Prithwis Das Gupta's specification of *standardization* and
 *decomposition* of rates, as set out in his 1993 book *[Standardization
-and decomposition of rates: A user’s
+and decomposition of rates: A user's
 manual](https://babel.hathitrust.org/cgi/pt?id=osu.32437011198450)*.
 
 You can install DasGuptR from here with:
@@ -65,7 +65,7 @@ adjust for the impact of compositional factors on rates.
 
 In the simplest example, consider a case where the rate is taken as the
 product of two factors $\alpha$ and $\beta$, which we will write as
-$R = \alpha\beta$. Throughout Das Gupta’s work, greek letters are used
+$R = \alpha\beta$. Throughout Das Gupta's work, greek letters are used
 to indicate the different compositional factors, and upper and lower
 case latin letters are used to denote specific population values of
 these:
@@ -85,11 +85,11 @@ $\frac{a+A}{2}$.
 | $\alpha$ | $A$ | $a$ |
 | $\beta$ | $B$ | $b$ |
 | crude rate, $R_{crude}$ | $AB$ | $ab$ |
-| “$\beta$-standardised rate”, $R_{-\alpha}$ | $A\frac{B+b}{2}$ | $a\frac{B+b}{2}$ |
-| “$\alpha$-standardised rate”, $R_{-\beta}$ | $\frac{A+a}{2}B$ | $\frac{A+a}{2}b$ |
+| "$\beta$-standardised rate", $R_{-\alpha}$ | $A\frac{B+b}{2}$ | $a\frac{B+b}{2}$ |
+| "$\alpha$-standardised rate", $R_{-\beta}$ | $\frac{A+a}{2}B$ | $\frac{A+a}{2}b$ |
 
-These $\alpha$-standardised rates can be interpreted as “what the crude
-rate would look like if $\alpha$ was held equal” (and analogously for
+These $\alpha$-standardised rates can be interpreted as "what the crude
+rate would look like if $\alpha$ was held equal" (and analogously for
 $\beta$). In cases involving multiple factors, this can quickly become
 unwieldy, requiring listing the $K-1$ factors that are held equal for
 each standardised rate.[^1] For this reason, we opt to refer to these
@@ -97,10 +97,10 @@ rates as, e.g., $K-\alpha$, where $K$ is the set of all compositional
 factors. This is reflected in the table above, where we have used
 $R_{crude}$, $R_{-\alpha}$ and $R_{-\beta}$ to denote, respectively, the
 crude rate, the $K-\alpha$-standardised rate (or
-“$\beta$-standardised”), and the $K-\beta$-standardised (or
-“$\alpha$-standardised”) rate. The $K-\alpha$-standardised rate can
-therefore be interpreted as “what the crude rate would look like if
-$\alpha$ changed but all other factors were held equal”.
+"$\beta$-standardised"), and the $K-\beta$-standardised (or
+"$\alpha$-standardised") rate. The $K-\alpha$-standardised rate can
+therefore be interpreted as "what the crude rate would look like if
+$\alpha$ changed but all other factors were held equal".
 
 The *difference* in the standardised rates is known as a **decomposition
 effect**, so named because differences in the crude rates can be
@@ -193,12 +193,12 @@ populations — such as in a time series — or we may have be interested in
 how the compositional structure of populations contributes to the
 differences in these rates.
 
-The full explanation of Das Gupta’s methodology for standardisation and
+The full explanation of Das Gupta's methodology for standardisation and
 decomposition are explained in full in his 1993 book *[Standardization
-and decomposition of rates: A user’s
+and decomposition of rates: A user's
 manual](https://babel.hathitrust.org/cgi/pt?id=osu.32437011198450)*
 
-Below are various examples taken from Das Gupta’s 1993 work, following
+Below are various examples taken from Das Gupta's 1993 work, following
 his exposition by building up the number of factors, vectorisation,
 generalising to different rate functions, compositional structures of
 populations, and finally extending the process to more than just two
@@ -560,7 +560,7 @@ the string is evaluated, each factor (or vector-factor) is stored in a
 named list, meaning the function must simply refer to those factors by
 name.
 
-It is possible, for instance, to define a custom function in the user’s
+It is possible, for instance, to define a custom function in the user's
 environment, and provide a call to that function to the `ratefunction`
 argument of `dgnpop()`:
 
@@ -1103,8 +1103,8 @@ with `vignette("bootstrap", package="DasGuptR")`
     $\beta\gamma\delta$-standardised, $\alpha\gamma\delta$-standardised,
     and $\alpha\beta\delta$-standardised.
 
-[^2]: Importantly, the use of “attributable” has a very narrow sense of
-    ‘numerically attributable’, and it is important to stress the lack
+[^2]: Importantly, the use of "attributable" has a very narrow sense of
+    'numerically attributable', and it is important to stress the lack
     of any causal interpretation here - different decomposition effects
     identified by standardization and decomposition may themselves be
     the products of one (or more) variables not included in the analysis

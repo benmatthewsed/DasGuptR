@@ -18,8 +18,7 @@ A data frame with 130 rows and 8 variables:
 }
 }
 \source{
-Scottish Government Reconviction data:
-(\href{https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/}{2016/17})
+\href{https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/}{Scottish Government (2019) Reconviction rates in Scotland: 2016-2017 offender cohort, Main publication tables}
 }
 \usage{
 reconv

@@ -16,8 +16,7 @@
 #'   \item{prev_rate}{age-sex specific reconviction rate: percentage of offenders in a given age-sex group who were reconvicted one or more times}
 #' }
 #'
-#' @source Scottish Government Reconviction data:
-#' (\href{https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/}{2016/17})
+#' @source [Scottish Government (2019) Reconviction rates in Scotland: 2016-2017 offender cohort, Main publication tables](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/)
 #'
 #' @keywords datasets
 #'
