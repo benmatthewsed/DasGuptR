@@ -1,0 +1,322 @@
+---
+title: "Standardization and decomposition with small differences in crude rates"
+format:
+  html:
+    embed-resources: true
+author:
+- Ben Matthews
+- Josiah King
+date: "2026/06/03"
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+#| echo: false
+options(pillar.sigfig = 4)
+options(digits = 2)
+```
+
+
+
+Results from standardization and decomposition express change in crude rates as a percentage. When the absolute difference in crude rates is very small these percentages can become extremely large - and in the case where the crude rates are identical they are not defined. As such analysts may want to asses whether the difference in crude rates between comparators in a standardization and decomposition is 'big enough' to give reliable results. In the case where rates reflect aggregations of binary variables (as in the reconvictions data included with the package) one way to assess whether differences in crude rates are 'big enough' is via a statistical significance test for proportions. If the test is statistically significant then the results of the standardization and decomposition are likely to be robust to small variations in the input data. Conversely, if crude rates in comparator populations are not 'statistically significant' results from standardization and decomposition may be fragile to small changes in the input data. This vignette uses [bootstrapping](bootstrap.html) to demonstrate this phenomenon.
+
+## Load packages
+
+```{r}
+#| warning: false
+#| message: false
+
+library(DasGuptR)
+library(tidyverse)
+library(rsample)
+
+data("reconv")
+
+# seed required for bootstrapping
+set.seed(as.numeric(as.Date("2026/05/21")))
+```
+
+## Comparing 2004 and 2016
+
+First we conduct a standardization and decomposition for the first and last years in the reconvictions data.
+
+```{r}
+#| message: false
+# original analysis
+dat_2004_2016 <- 
+  reconv |> 
+  filter(year == "2004" | year == "2016")
+
+res_2004_2016 <-
+  dgnpop(
+    dat_2004_2016,
+    pop="year", 
+    factors=c("prev_rate"),id_vars=c("Sex","Age"),
+    crossclassified="offenders") |> 
+  dg_table() |> 
+  rownames_to_column()
+
+res_2004_2016
+```
+
+This works as anticipated. 
+
+## Uncertainty in comparison between 2004 and 2016
+
+We may want to calculate uncertainty intervals around our results. To do this we bootstrap the underlying reconvictions data we find that the results from the 2004 to 2016 comparison are robust sensitive to perturbations of the input data.
+
+```{r}
+#| eval: false
+# bootstrap helper functions
+uncount_split <- function(splits){
+  
+  rsample::analysis(splits) |> 
+    count(year, Age, Sex, reconvicted) |> 
+    pivot_wider(names_from = "reconvicted",
+                values_from = "n") |> 
+    mutate(offenders = n_not_reconvicted + reconvicted,
+           prev_rate = reconvicted / offenders)
+  
+}
+
+calc_dg <- function(d){
+  
+  d |> 
+    dgnpop(pop="year", 
+           factors=c("prev_rate"),id_vars=c("Sex","Age"),
+           crossclassified="offenders",
+           agg = TRUE) |> 
+    dg_table() |> 
+    rownames_to_column()
+  
+}
+
+
+# bootstrap: 
+n_draws <- 500
+
+dat_2004_2016_long <- 
+  dat_2004_2016 |> 
+  mutate(n_not_reconvicted = offenders - reconvicted) |> 
+  select(year, Age, Sex, n_not_reconvicted, reconvicted) |> 
+  pivot_longer(n_not_reconvicted:reconvicted, 
+               names_to = "reconvicted", 
+               values_to = "n") |> 
+  mutate(n = as.integer(n)) |>
+  uncount(n)
+
+draws_2004_2016 <- 
+  dat_2004_2016_long |> 
+  group_by(year) |> 
+  rsample::bootstraps(times = n_draws) |> 
+  mutate(dat = map(splits, uncount_split),
+         results = map(dat, calc_dg),
+         draw = 1:n_draws) |> 
+  select(draw, results)
+
+```
+
+```{r}
+#| echo: false
+
+# saveRDS(draws_2004_2016,
+#         here::here("vignettes", "qmd", "bsamps_2004_2016.rds"))
+
+draws_2004_2016 <- readRDS("bsamps_2004_2016.rds")
+
+```
+
+Plotting the bootstrap draws against the observed data shows that the original results align with the median result of the bootstrap draws.
+
+```{r}
+draws_2004_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2004`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016") |> 
+  ggplot(aes(x = decomp, y = rowname)) +
+  ggdist::stat_halfeye() +
+  geom_point(data = res_2004_2016,
+    aes(x = decomp, y = rowname),
+    size = 4,colour = "red") +
+  ggtitle(label = "Red point is real data") +
+  facet_wrap(~ rowname, scales = "free_x")
+
+draws_2004_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2004`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016",
+         rowname != "crude") |> 
+  group_by(rowname, year) |> 
+  summarise(confs = list(quantile(decomp, c(0.025, 0.5, 0.975))),
+            cis = list(c("lower_ci", "median", "upper_ci")),
+            .groups = "drop") |> 
+  unnest(c(confs, cis)) |> 
+  pivot_wider(names_from = cis, values_from = confs)
+
+res_2004_2016
+```
+
+
+However, the crude difference in reconviction rates in 2004 and 2016 is quite large (2016 rate is `r round(res_2004_2016[4,3]/res_2004_2016[4,2],2)` the rate in 2004) conditions favourable to standardization and decomposition. Plotting the crude rates alongside their confidence intervals using `prop.test()` gives a sense of how different the crude rates in pairs of comparison years are whilst adjusting for the size of the reconviction cohorts.
+
+```{r}
+crude_rates <- 
+  reconv |> 
+  group_by(year) |> 
+  summarise(crude_rate = weighted.mean(prev_rate, offenders),
+            offenders = sum(offenders),
+            reconvicted = sum(reconvicted))
+
+ref <- 
+  crude_rates |> 
+  filter(year == "2016")
+
+diff_cis <- 
+  crude_rates |> 
+  filter_out(year == "2016") |> 
+  mutate(
+    res = map2(
+      reconvicted, offenders,
+      ~ prop.test(
+        c(..1, ref$reconvicted),
+        c(..2, ref$offenders)
+      ) |> broom::tidy()
+    )
+  )
+
+diff_cis |> 
+  unnest(res) |>  
+  mutate(diff = estimate1 - estimate2) |> 
+  ggplot(aes(x = year, y = diff)) +
+  geom_hline(yintercept = 0) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  labs(y = "Difference in crude reconviction rate compared to 2016",
+       x = "Reconviction cohort")
+```
+
+The figure above shows that confidence intervals for the difference in crude rates between 2004 and 2016 does not include zero - but the interval for the 2015-2016 differences does (and we can see that the p-value for this comparison is not significant at the .05 level):
+
+```{r}
+diff_cis |> 
+  unnest(res) |>  
+  filter(p.value >= 0.05) |> 
+  select(year, estimate1, estimate2, p.value)
+```
+
+Indeed, the reconviction rates in 2015 and 2016 only differ at the 3rd decimal. 
+
+
+## Comparing 2015 and 2016
+
+If we attempt to do the same decomposition as we did for 2004 and 2016, but this time using 2015 and 2016, then Das Gupta's maths appears to work as before, and the output tells us that 114% of the difference between these two years is due to changes in age structure:  
+
+```{r}
+#| echo: false
+options(digits=4)
+```
+
+
+```{r}
+#| message: false
+dat_2015_2016 <- 
+  reconv |> 
+  filter(year == "2015" | year == "2016")
+
+res_2015_2016 <- 
+  dgnpop(
+    dat_2015_2016,
+    pop="year", 
+    factors=c("prev_rate"),id_vars=c("Sex","Age"),
+    crossclassified="offenders") |> 
+  dg_table() |> 
+  rownames_to_column()
+
+res_2015_2016
+```
+
+However, we are decomposing a very small crude rate difference. These decomposition effects expressed as percentages are extremely unreliable. In short, this is because we are dividing by such a small value of `r round(res_2015_2016[4,4],5)`.  
+
+## Uncertainty in comparison between 2015 and 2016
+
+If we repeat the process for the 2015 to 2016 comparison, we can see that not only are the bootstrap distribution of estimates extremely wide, but the observed results do not align with the center of these distributions:
+
+```{r}
+#| eval: false
+# bootstrapping 2015 & 2016
+dat_2015_2016_long <- 
+  dat_2015_2016 |> 
+  mutate(n_not_reconvicted = offenders - reconvicted) |> 
+  select(year, Age, Sex, n_not_reconvicted, reconvicted) |> 
+  pivot_longer(n_not_reconvicted:reconvicted, 
+               names_to = "reconvicted", 
+               values_to = "n") |> 
+  mutate(n = as.integer(n)) |>
+  uncount(n)
+
+draws_2015_2016 <- 
+  dat_2015_2016_long |> 
+  group_by(year) |> 
+  rsample::bootstraps(times = n_draws) |> 
+  mutate(dat = map(splits, uncount_split),
+         results = map(dat, calc_dg),
+         draw = 1:n_draws) |> 
+  select(draw, results)
+```
+
+```{r}
+#| echo: false
+# saveRDS(draws_2015_2016,
+#         here::here("vignettes", "qmd", "bsamps_2015_2016.rds"))
+
+draws_2015_2016 <- readRDS(here::here("vignettes", "qmd", "bsamps_2015_2016.rds"))
+```
+
+```{r}
+#| warning: false
+#| message: false
+draws_2015_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2015`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016",
+         rowname != "crude") |> 
+  ggplot(aes(x = decomp, y = rowname)) +
+  ggdist::stat_halfeye() +
+  geom_point(data = res_2015_2016 |> filter(rowname != "crude"),
+    aes(x = decomp, y = rowname), 
+    size = 4, colour = "red"
+  ) +
+  ggtitle(label = "Red point is real data") +
+  facet_wrap(~ rowname, scales = "free_x") +
+  scale_x_continuous(limits = c(-250, 250))
+```
+
+The red points (the observed results) do not align with the original results, as the results table confirms:
+
+```{r}
+draws_2015_2016 |> 
+  unnest(results) |> 
+  pivot_longer(`2015`:`2016`,
+               names_to = "year",
+               values_to = "rate") |> 
+  filter(year == "2016") |> 
+  group_by(rowname, year) |> 
+  summarise(confs = list(quantile(decomp, c(0.025, 0.5, 0.975))),
+            cis = list(c("lower_ci", "median", "upper_ci")),
+            .groups = "drop") |> 
+  unnest(c(confs, cis)) |> 
+  pivot_wider(names_from = cis, values_from = confs)
+```
+
+# Summary
+
+Calculating appropriate confidence intervals for ratio data is a well studied problem in the statistics literature but can be challenging in applied settings[^1]. The process described here - calculating a statistical significance test for the difference in crude rates and/or bootstrapping the underlying data before performing the decomposition - can identify situations where researchers may want to treat the outputs of a standardization and decomposition with caution.
+
+[^1]: See Franz, V. H. (2007). Ratios: A short guide to confidence limits and proper use. arXiv preprint [arXiv:0710.2024](https://arxiv.org/pdf/0710.2024).

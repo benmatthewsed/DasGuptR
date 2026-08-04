@@ -4,16 +4,18 @@
 \alias{dg612}
 \title{Das Gupta equation 6.12 for a differences between 2 populations when standardised across N populations.}
 \usage{
-dg612(srates, all_p, ps, factor)
+dg612(srates, all_p, ps, factor, std = TRUE)
 }
 \arguments{
-\item{srates}{a dataframe output from dg2p}
+\item{srates}{a dataframe output from \code{\link[=dg2pop]{dg2pop()}}}
 
 \item{all_p}{character or numeric vector of all N populations}
 
 \item{ps}{vector of length 2 specifying a possible pairwise comparison of populations}
 
 \item{factor}{character string indicating name of factor}
+
+\item{std}{logical indicating whether standardisation across multiple populations has occurred}
 }
 \value{
 data.frame object including K-a standardised-rate-differences for each population for given factor a, across N populations

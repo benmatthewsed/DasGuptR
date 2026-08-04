@@ -1,5 +1,5 @@
 #' Das Gupta equation 6.11: Standardises rates across populations
-#' @param srates a dataframe/tibble object of standardised rates from dg2pop
+#' @param srates a dataframe/tibble object of standardised rates from [DasGuptR::dg2pop()]
 #' @param all_p character or numeric vector of all N populations
 #' @param y character/numeric indicating a single population
 #' @param factor string indicating rate-factor being standardised.

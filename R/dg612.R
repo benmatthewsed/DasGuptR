@@ -1,5 +1,5 @@
 #' Das Gupta equation 6.12 for a differences between 2 populations when standardised across N populations.
-#' @param srates a dataframe output from dg2p
+#' @param srates a dataframe output from [DasGuptR::dg2pop()]
 #' @param all_p character or numeric vector of all N populations
 #' @param ps vector of length 2 specifying a possible pairwise comparison of populations
 #' @param factor character string indicating name of factor

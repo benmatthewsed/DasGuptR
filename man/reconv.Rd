@@ -5,20 +5,36 @@
 \alias{reconv}
 \title{Scottish Reconvictions data 2004-2016}
 \format{
-An object of class \code{data.frame} with 130 rows and 8 columns.
+A data frame with 130 rows and 8 variables:
+\describe{
+\item{year}{Population indicator}
+\item{Sex}{Sex group (Female, Male)}
+\item{Age}{Age group: \verb{(0,20]}, \verb{[21,25]}, \verb{[26,30]}, \verb{[31,40]}, \verb{(40,Inf)}}
+\item{convicted_population}{Total number of offenders who either received a non-custodial conviction or were released from a custodial sentence in a given year}
+\item{offenders}{Number of offenders in a given age-sex group}
+\item{reconvicted}{Number of people in a given age-sex group who were reconvicted one or more times}
+\item{reconvictions}{Number of reconvictions in a given age-sex group}
+\item{prev_rate}{age-sex specific reconviction rate: percentage of offenders in a given age-sex group who were reconvicted one or more times}
+}
+}
+\source{
+\href{https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/}{Scottish Government (2019) Reconviction rates in Scotland: 2016-2017 offender cohort, Main publication tables}
 }
 \usage{
-data(reconv)
+reconv
 }
 \description{
-Scottish Reconvictions data 2004-2016
+Official statistics on reconvictions in Scotland, 2004 to 2016 inclusive, split by sex and 6 age groups
 }
 \examples{
 data(reconv)
 
-}
-\references{
-Scottish Government Reconviction data:
-(\href{https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/}{2016/17})
+# dgnpop(reconv,
+#        pop="year",
+#        factors=c("prev_rate"),
+#        id_vars=c("Sex","Age"),
+#        crossclassified="offenders") |>
+#   dg_plot()
+
 }
 \keyword{datasets}

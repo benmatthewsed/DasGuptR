@@ -7,7 +7,7 @@
 dg_table(dgo, pop1 = NULL, pop2 = NULL)
 }
 \arguments{
-\item{dgo}{output from \code{dgnpop()}}
+\item{dgo}{output from \code{\link[=dgnpop]{dgnpop()}}}
 
 \item{pop1}{optional name of first population for decomposition (character/numeric)}
 

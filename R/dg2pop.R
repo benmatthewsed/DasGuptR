@@ -7,7 +7,6 @@
 #' @param ratefunction user defined character string in R syntax that when evaluated specifies the function defining the rate as a function of factors. if NULL then will assume rate is the product of all factors.
 #' @param quietly logical indicating whether interim messages should be outputted indicating progress through the P factors
 #' @return named list along set of K factors included in the standardisation. Each list element contains a data.frame that includes K-a standardised rates for each population, along with differences between standardised rates
-#'
 #' @export
 dg2pop <- function(pw, pop, factors, id_vars, ratefunction = NULL, quietly = TRUE) {
   nfact <- length(factors)
