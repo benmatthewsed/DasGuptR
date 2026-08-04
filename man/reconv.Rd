@@ -29,12 +29,12 @@ Official statistics on reconvictions in Scotland, 2004 to 2016 inclusive, split 
 \examples{
 data(reconv)
 
-dgnpop(reconv,
-       pop="year",
-       factors=c("prev_rate"),
-       id_vars=c("Sex","Age"),
-       crossclassified="offenders") |>
-  dg_plot()
+# dgnpop(reconv,
+#        pop="year",
+#        factors=c("prev_rate"),
+#        id_vars=c("Sex","Age"),
+#        crossclassified="offenders") |>
+#   dg_plot()
 
 }
 \keyword{datasets}

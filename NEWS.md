@@ -1,4 +1,4 @@
-# DasGuptR 2.2.0 (2026-08-01)
+# DasGuptR 2.2.0 (2026-08-04)
 
 
 - split_popstr() rewritten to improve computation speed for crossclassified structures

@@ -26,6 +26,8 @@ Population and Birth Rates by Nine Age-Sex Groups: United States, 1940 to 1990
 }
 \examples{
 data(dgeg6_6)
+# for speed, take every 5th year
+dgeg6_6 <- dgeg6_6[dgeg6_6$year \%in\% seq(1940,1990,5), ]
 
 dgo_us <- dgnpop(dgeg6_6,
                  pop = "year",
@@ -37,24 +39,24 @@ dg_plot(dgo_us)
 
 # Recreating Figure 1 (p.112) from Das Gupta 1993
 # crude rates
-plot(x = 1940:1990,
+plot(x = seq(1940,1990,5),
      y = by(dgeg6_6, dgeg6_6$year,
             \(x) sum(x$birthrate * (x$thous/sum(x$thous)))),
      type = "l", ylim = c(13,33))
 # rates with 1940 as standard
 baseline = dgeg6_6[dgeg6_6$year == 1940, ]
-lines(x = 1940:1990,
+lines(x = seq(1940,1990,5),
       y = by(dgeg6_6, dgeg6_6$year,
              \(x) sum(x$birthrate * (baseline$thous/sum(baseline$thous)))),
       lty = "dotted")
 # rates with 1990 as standard
 baseline = dgeg6_6[dgeg6_6$year == 1990, ]
-lines(x = 1940:1990,
+lines(x = seq(1940,1990,5),
       y = by(dgeg6_6, dgeg6_6$year,
              \(x) sum(x$birthrate * (baseline$thous/sum(baseline$thous)))),
       lty = "dashed")
 # rates standardised with Das Gupta's method
-lines(x = 1940:1990,
+lines(x = seq(1940,1990,5),
       y = dgo_us$rate[dgo_us$factor=="birthrate"],
       lty = "longdash", col = "red")
 

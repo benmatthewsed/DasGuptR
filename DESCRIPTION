@@ -2,7 +2,7 @@ Package: DasGuptR
 Type: Package
 Title: Das Gupta Standardisation and Decomposition
 Version: 2.2.0
-Date: 
+Date: 2026-08-04
 Authors@R: c(person(given = "Josiah",
                       family = "King",
                       role = c("aut", "cre"),
